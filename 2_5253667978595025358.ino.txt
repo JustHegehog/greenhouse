@@ -1,0 +1,170 @@
+#include <GyverPWM.h>
+#include <EEPROM.h>
+float a;
+float b;
+float c;
+int s;
+float q;
+float q2;
+float v1;
+float v2;
+boolean k;
+boolean m;
+unsigned long w;
+#include <LCD_1602_RUS.h>
+LCD_1602_RUS lcd(0x27, 16, 2);
+int8_t symbol[8] = {31, 31, 31, 31, 31, 31, 31, 31};
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+  pinMode(3, OUTPUT);
+  pinMode(2, INPUT_PULLUP);
+  PWM_resolution(3, 4, FAST_PWM);
+  pinMode(A1, INPUT);
+  EEPROM.get(1, q);
+  EEPROM.get(6, q2);
+  v1=q-q2;
+  v2=v1/6.0;
+  v1=v1/2.0;
+  //Serial.begin(9600);
+}
+void loop() {
+  PWM_set(3, 3);
+  a = analogRead(A1) * 4.7 / 1024;
+  if (digitalRead(2) == HIGH) {
+    if (k == 0) {
+      w = millis();
+      k = 1;
+    }
+    if (millis() - w >= 3000 && digitalRead(2) == HIGH ) {
+      lcd.clear();
+      delay(1000);
+      lcd.setCursor(0, 0);
+      lcd.print("ПОМЕСТИТЕ ДАТЧИК      И НАЖМИТЕ КНОПКУ");
+      lcd.setCursor(0, 1);
+      lcd.print("               В ВОЗДУХ");
+      for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
+          if (digitalRead(2) == HIGH) break;
+          lcd.scrollDisplayLeft();
+          delay(500);
+        }
+        if (digitalRead(2) == HIGH) break;
+      }
+      a = analogRead(A1) * 4.7 / 1024;
+      q = a;
+      EEPROM.put(1, q);
+      lcd.clear();
+      delay(2000);
+      lcd.setCursor(0, 0);
+      lcd.print("ПОМЕСТИТЕ ДАТЧИК    И НАЖМИТЕ КНОПКУ");
+      lcd.setCursor(0, 1);
+      lcd.print("               В ВОДУ");
+      for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
+          if (digitalRead(2) == HIGH) break;
+          lcd.scrollDisplayLeft();
+          delay(500);
+        }
+        if (digitalRead(2) == HIGH) break;
+      }
+      a = analogRead(A1) * 4.7 / 1024;
+      q2 = a;
+      EEPROM.put(6, q2);
+      lcd.clear();
+      v1=q-q2;
+      v2=v1/6.0;
+      v1=v1/2.0;
+      lcd.setCursor(2, 0);
+      lcd.print(q);
+      lcd.setCursor(7, 0);
+      lcd.print(q2);
+      lcd.setCursor(2, 1);
+      lcd.print(v1);
+      lcd.setCursor(7, 1);
+      lcd.print(v2);
+      delay(4000);
+      lcd.clear();
+    }
+  }
+  else {
+    k = 0;
+    w = 0; 
+  }
+  lcd.setCursor(7, 1);
+  lcd.print(a);
+  if (a <= q && a >= q - v1) {
+    b = ((q + 0.0001 - a) * 20) / v1;
+    lcd.setCursor(13, 1);
+    lcd.print("1");
+    lcd.setCursor(0, 1);
+    lcd.print(b);
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+    lcd.setCursor(7, 1);
+    lcd.print(a);
+  }
+  if (a < q - v1 && a >= q - v1 - v2) {
+    b = 20 + ((q + 0.0001 - v1 - a)  * 15) / v2;
+    lcd.setCursor(13, 1);
+    lcd.print("2");
+    lcd.setCursor(0, 1);
+    lcd.print(b);
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+    lcd.setCursor(7, 1);
+    lcd.print(a);
+  }
+  if (a < q - v1 - v2 && a >= q - v1 - v2 - v2) {
+    b = 35 + ((q + 0.0001 - v1 - v2 - a) * 20) / v2;
+    lcd.setCursor(13, 1);
+    lcd.print("3");
+    lcd.setCursor(0, 1);
+    lcd.print(b);
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+    lcd.setCursor(7, 1);
+    lcd.print(a);
+  }
+  if (a < q - v1 - v2 - v2 && a >= q - v1 - v2 - v2 - v2) {
+    b = 55 + ((q + 0.0001 - v1 - v2 - v2 - a) * 45) / v2;
+    lcd.setCursor(13, 1);
+    lcd.print("4");
+    lcd.setCursor(0, 1);
+    lcd.print(b);
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+    lcd.setCursor(7, 1);
+    lcd.print(a);
+  }
+  if (a > q) {
+    lcd.setCursor(0, 1);
+    lcd.print(0.00);
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+  }
+  if (a < q2) {
+    lcd.setCursor(0, 1);
+    lcd.print(100);
+    lcd.setCursor(4, 1);
+    lcd.setCursor(3, 1);
+    lcd.print(char(32));
+    lcd.setCursor(4, 1);
+    lcd.print("%");
+  }
+  if (b > c) {
+    c = c + 6.25;
+    lcd.setCursor(s, 0);
+    lcd.print(char(255));
+    s = s + 1;
+  }
+  if (b < c) {
+    c = c - 6.25;
+    lcd.setCursor(s, 0);
+    lcd.print(char(32));
+    s = s - 1;
+  }
+
+  delay(1000);
+}
