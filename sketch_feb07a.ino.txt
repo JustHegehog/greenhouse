@@ -1,0 +1,51 @@
+#include <LiquidCrystal.h>
+#include <DHT.h>
+LiquidCrystal lcd(3,4,8,9,10,11);
+int fan = 4;
+#define DHTPIN 2
+DHT dht(DHTPIN, DHT11);
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  lcd.begin (16,2);
+  pinMode(fan, OUTPUT);
+}
+void loop() {
+  delay(2000);
+    float t = dht.readTemperature();
+  if (isnan(t)) {
+    Serial.println("Ошибка считывания");
+    return;
+  }}
+  void loop() {
+ lsd.print(t) 
+}
+ /* Serial.print(" %\t");
+  Serial.print("Температура: ");
+  Serial.print(t);
+  Serial.println(" *C "); 
+*/
+  int pin_fan = 4;
+  //int fan = 4;
+  float t_max = 28;
+  float t_heat = 25;
+  float t_min = 23;
+  int pin_heat = 7;
+  void setup()
+ {
+   pinMode(heat, OUTPUT);
+  } 
+  void loop()
+  {
+  if (t>t_max){
+  digitalWrite(fan, HIGH);
+  }
+  if (t<t_heat){
+  digitalWrite(fan, LOW);
+}
+  if (t>t_heat){
+  digitalWrite(heat, LOW);
+  }
+  if (t<t_min){
+  digitalWrite(heat, HIGH);
+}}
